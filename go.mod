@@ -1,4 +1,4 @@
-module newgit.cg.xxx/go-log/gormLogger
+module newgit.cg.xxx/go-log/gormlogger
 
 go 1.16
 
