@@ -63,12 +63,12 @@ func (l Logger) Trace(ctx context.Context, begin time.Time, fc func() (string, i
 	sql, rows := fc()
 	switch {
 	case err != nil:
-		l.Logger.Error(`执行错误`, zap.String(`错误`, err.Error()), zap.Int64(`行号`, rows), zap.Duration(`耗时`, elapsed), zap.String(`sql`, sql))
+		l.Logger.Error(`执行错误`, zap.String(`错误`, err.Error()), zap.Int64(`影响行数`, rows), zap.Duration(`耗时`, elapsed), zap.String(sqlField, sql))
 	case elapsed > l.slowThreshold && l.slowThreshold != 0:
-		l.Logger.Warn(`慢查询`, zap.Duration(`阈值`, l.slowThreshold), zap.Int64(`行号`, rows), zap.Duration(`耗时`, elapsed), zap.String(`sql`, sql))
+		l.Logger.Warn(`慢查询`, zap.Duration(`阈值`, l.slowThreshold), zap.Int64(`影响行数`, rows), zap.Duration(`耗时`, elapsed), zap.String(sqlField, sql))
 
 	default:
-		l.Logger.Info(`成功`, zap.Int64(`行号`, rows), zap.Duration(`耗时`, elapsed), zap.String(`sql`, sql))
+		l.Logger.Info(`执行成功`, zap.Int64(`影响行数`, rows), zap.Duration(`耗时`, elapsed), zap.String(sqlField, sql))
 	}
 }
 func (l Logger) gormFields(msg string, data ...interface{}) []zap.Field {
@@ -76,3 +76,7 @@ func (l Logger) gormFields(msg string, data ...interface{}) []zap.Field {
 		zap.String(`信息`, fmt.Sprintf(msg, data...)),
 	}
 }
+
+var (
+	sqlField = `SQL`
+)
