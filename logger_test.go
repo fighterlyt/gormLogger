@@ -4,12 +4,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/fighterlyt/log"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zapcore"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"newgit.cg.xxx/go-log/log"
 )
 
 var (
@@ -35,7 +35,8 @@ func TestNewLogger(t *testing.T) {
 	require.NoError(t, err, `构建原始日志器`)
 
 	mysqlLogger := originLogger.Derive(`mysql`)
-	mysqlLogger = mysqlLogger.AddCallerSkip(1)
+	mysqlLogger.Info(`before`)
+	mysqlLogger = mysqlLogger.AddCallerSkip(4)
 	targetLogger = NewLogger(mysqlLogger, time.Second)
 
 	db, err = gorm.Open(mysql.Open(localDSN), &gorm.Config{
@@ -46,5 +47,5 @@ func TestNewLogger(t *testing.T) {
 		count int64
 	)
 
-	require.NoError(t, db.Debug().Table(`dh_pay_order`).Count(&count).Error, `COUNT`)
+	require.NoError(t, db.WithContext(gormCtx(nil)).Debug().Table(`dh_pay_order`).Count(&count).Error, `COUNT`)
 }

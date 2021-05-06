@@ -3,12 +3,13 @@ package gormlogger
 import (
 	"context"
 	"fmt"
+	"runtime"
 	"time"
 
+	"github.com/fighterlyt/log"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gorm.io/gorm/utils"
-	"newgit.cg.xxx/go-log/log"
 
 	"gorm.io/gorm/logger"
 )
@@ -79,4 +80,29 @@ func (l Logger) gormFields(msg string, data ...interface{}) []zap.Field {
 
 var (
 	sqlField = `SQL`
+	lineKey  = `gormLine`
+	fileKey  = `gormFile`
 )
+
+func gormCtx(ctx context.Context) context.Context {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	_, file, line, _ := runtime.Caller(1)
+	ctx = context.WithValue(ctx, fileKey, file)
+	ctx = context.WithValue(ctx, lineKey, line)
+
+	return ctx
+}
+
+func getFileAndLine(ctx context.Context) (file string, line int) {
+	if lineValue := ctx.Value(lineKey); lineValue != nil {
+		line, _ = lineValue.(int)
+	}
+
+	if fileValue := ctx.Value(fileKey); fileValue != nil {
+		file, _ = fileValue.(string)
+	}
+
+	return file, line
+}

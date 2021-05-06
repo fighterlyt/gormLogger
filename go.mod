@@ -3,10 +3,13 @@ module newgit.cg.xxx/go-log/gormlogger
 go 1.16
 
 require (
-	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/davecgh/go-spew v1.1.1
+	github.com/fighterlyt/log v0.0.0-20210506134502-1fa72a3a11c8
 	github.com/stretchr/testify v1.6.1
+	go.mongodb.org/mongo-driver v1.5.2 // indirect
+	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.16.0
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gorm.io/driver/mysql v1.0.5
 	gorm.io/gorm v1.21.6
-	newgit.cg.xxx/go-log/log v0.0.0-20210406072738-ebf0cf906ad4
 )
