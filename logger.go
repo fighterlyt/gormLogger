@@ -3,7 +3,6 @@ package gormlogger
 import (
 	"context"
 	"fmt"
-	"runtime"
 	"time"
 
 	"github.com/fighterlyt/log"
@@ -23,8 +22,8 @@ type Logger struct {
 	slowThreshold time.Duration // 慢查询耗时阈值
 }
 
-func NewLogger(logger log.Logger, slowThreshold time.Duration) logger.Interface {
-	return &Logger{Logger: logger, slowThreshold: slowThreshold}
+func NewLogger(originLogger log.Logger, slowThreshold time.Duration) logger.Interface {
+	return &Logger{Logger: originLogger, slowThreshold: slowThreshold}
 }
 
 func (l *Logger) LogMode(level logger.LogLevel) logger.Interface {
@@ -46,22 +45,22 @@ func (l *Logger) LogMode(level logger.LogLevel) logger.Interface {
 	return l
 }
 
-// 	callbacks.go replace c.processor.db.Logger.Info(context.Background(), "replacing callback `%v` from %v\n", name, utils.FileWithLineNum())
-func (l Logger) Info(ctx context.Context, msg string, data ...interface{}) {
+func (l Logger) Info(_ context.Context, msg string, data ...interface{}) {
 	l.Logger.Info(fmt.Sprintf(msg, data...))
 }
 
-func (l Logger) Warn(ctx context.Context, s string, i ...interface{}) {
+func (l Logger) Warn(_ context.Context, s string, i ...interface{}) {
 	l.Logger.Warn(s, zap.Any(`值`, append([]interface{}{utils.FileWithLineNum()}, i...)))
 }
 
-func (l Logger) Error(ctx context.Context, s string, i ...interface{}) {
+func (l Logger) Error(_ context.Context, s string, i ...interface{}) {
 	l.Logger.Error(s, zap.Any(`值`, append([]interface{}{utils.FileWithLineNum()}, i...)))
 }
 
-func (l Logger) Trace(ctx context.Context, begin time.Time, fc func() (string, int64), err error) {
+func (l Logger) Trace(_ context.Context, begin time.Time, fc func() (string, int64), err error) {
 	elapsed := time.Since(begin)
 	sql, rows := fc()
+
 	switch {
 	case err != nil:
 		l.Logger.Error(`执行错误`, zap.String(`错误`, err.Error()), zap.Int64(`影响行数`, rows), zap.Duration(`耗时`, elapsed), zap.String(sqlField, sql))
@@ -72,37 +71,7 @@ func (l Logger) Trace(ctx context.Context, begin time.Time, fc func() (string, i
 		l.Logger.Info(`执行成功`, zap.Int64(`影响行数`, rows), zap.Duration(`耗时`, elapsed), zap.String(sqlField, sql))
 	}
 }
-func (l Logger) gormFields(msg string, data ...interface{}) []zap.Field {
-	return []zap.Field{
-		zap.String(`信息`, fmt.Sprintf(msg, data...)),
-	}
-}
 
 var (
 	sqlField = `SQL`
-	lineKey  = `gormLine`
-	fileKey  = `gormFile`
 )
-
-func gormCtx(ctx context.Context) context.Context {
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	_, file, line, _ := runtime.Caller(1)
-	ctx = context.WithValue(ctx, fileKey, file)
-	ctx = context.WithValue(ctx, lineKey, line)
-
-	return ctx
-}
-
-func getFileAndLine(ctx context.Context) (file string, line int) {
-	if lineValue := ctx.Value(lineKey); lineValue != nil {
-		line, _ = lineValue.(int)
-	}
-
-	if fileValue := ctx.Value(fileKey); fileValue != nil {
-		file, _ = fileValue.(string)
-	}
-
-	return file, line
-}
