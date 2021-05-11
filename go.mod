@@ -1,4 +1,4 @@
-module newgit.cg.xxx/go-log/gormlogger
+module github.com/fighterlyt/gormlogger
 
 go 1.16
 
