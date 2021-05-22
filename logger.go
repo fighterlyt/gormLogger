@@ -26,7 +26,9 @@ type Logger struct {
 }
 
 func NewLogger(logger log.Logger, slowThreshold time.Duration) logger.Interface {
-	return &Logger{Logger: logger, slowThreshold: slowThreshold}
+	targetLogger := &Logger{Logger: logger, slowThreshold: slowThreshold}
+	targetLogger.AutoSkip()
+	return targetLogger
 }
 
 func (l *Logger) LogMode(level logger.LogLevel) logger.Interface {
