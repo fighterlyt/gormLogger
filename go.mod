@@ -1,9 +1,8 @@
-module newgit.cg.xxx/go-log/gormlogger
+module github.com/fighterlyt/gormlogger
 
 go 1.16
 
 require (
-	github.com/davecgh/go-spew v1.1.1
 	github.com/fighterlyt/log v0.0.0-20210506134502-1fa72a3a11c8
 	github.com/stretchr/testify v1.6.1
 	go.mongodb.org/mongo-driver v1.5.2 // indirect

@@ -47,5 +47,5 @@ func TestNewLogger(t *testing.T) {
 		count int64
 	)
 
-	require.NoError(t, db.WithContext(gormCtx(nil)).Debug().Table(`dh_pay_order`).Count(&count).Error, `COUNT`)
+	require.NoError(t, db.WithContext(todo).Debug().Table(`dh_pay_order`).Count(&count).Error, `COUNT`)
 }

@@ -4,12 +4,6 @@ github.com/aws/aws-sdk-go v1.34.28/go.mod h1:H7NKnBqNVzoTJpGfLrQkkD+ytBA93eiDYi/
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/fighterlyt/log v0.0.0-20210506125906-f65248af2a21 h1:u2bth26R37qMys0uPCrPdLWM9riU+BTQeLmhz3X8mvs=
-github.com/fighterlyt/log v0.0.0-20210506125906-f65248af2a21/go.mod h1:5MIq/d3QZpoEgJojBOvU3RR/k/+y5wBQCSUNTdVtq4Q=
-github.com/fighterlyt/log v0.0.0-20210506132254-aa4fcecda388 h1:bs/6JZf3Fh8DTf+oDAedX8ULllVb8vJhwA9BZqmJofQ=
-github.com/fighterlyt/log v0.0.0-20210506132254-aa4fcecda388/go.mod h1:5MIq/d3QZpoEgJojBOvU3RR/k/+y5wBQCSUNTdVtq4Q=
-github.com/fighterlyt/log v0.0.0-20210506133151-63c8768e8ac2 h1:oD3SdZqHaWf2ML9nhgcoQbrLISCniTgqIF0d91y167M=
-github.com/fighterlyt/log v0.0.0-20210506133151-63c8768e8ac2/go.mod h1:5MIq/d3QZpoEgJojBOvU3RR/k/+y5wBQCSUNTdVtq4Q=
 github.com/fighterlyt/log v0.0.0-20210506134502-1fa72a3a11c8 h1:K+wGRnFcNz2egnpkCYvqRV39Ut5JjLObQzFkmkQ8MRo=
 github.com/fighterlyt/log v0.0.0-20210506134502-1fa72a3a11c8/go.mod h1:5MIq/d3QZpoEgJojBOvU3RR/k/+y5wBQCSUNTdVtq4Q=
 github.com/go-sql-driver/mysql v1.5.0 h1:ozyZYNQW3x3HtqT1jira07DN2PArx2v7/mN66gGcHOs=
