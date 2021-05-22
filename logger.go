@@ -105,7 +105,7 @@ var (
 	zapgormPackage = filepath.Join("fighterlyt", "gormlogger")
 )
 
-func (l *Logger) logger() {
+func (l *Logger) AutoSkip() {
 	for i := 2; i < 15; i++ {
 		_, file, _, ok := runtime.Caller(i)
 		switch {
