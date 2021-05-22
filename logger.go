@@ -3,7 +3,9 @@ package gormlogger
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/fighterlyt/log"
@@ -64,6 +66,14 @@ func (l Logger) Trace(ctx context.Context, begin time.Time, fc func() (string, i
 	sql, rows := fc()
 	switch {
 	case err != nil:
+		value := ctx.Value(IgnoreErrorKey)
+		if value != nil {
+			if ignoreError, ok := value.(error); ok {
+				if err == ignoreError {
+					return
+				}
+			}
+		}
 		l.Logger.Error(`执行错误`, zap.String(`错误`, err.Error()), zap.Int64(`影响行数`, rows), zap.Duration(`耗时`, elapsed), zap.String(sqlField, sql))
 	case elapsed > l.slowThreshold && l.slowThreshold != 0:
 		l.Logger.Warn(`慢查询`, zap.Duration(`阈值`, l.slowThreshold), zap.Int64(`影响行数`, rows), zap.Duration(`耗时`, elapsed), zap.String(sqlField, sql))
@@ -84,25 +94,28 @@ var (
 	fileKey  = `gormFile`
 )
 
-func gormCtx(ctx context.Context) context.Context {
-	if ctx == nil {
-		ctx = context.Background()
+type CtxKey string
+
+const (
+	IgnoreErrorKey = CtxKey(`ignoreError`)
+)
+
+var (
+	gormPackage    = filepath.Join("gorm.io", "gorm")
+	zapgormPackage = filepath.Join("fighterlyt", "gormlogger")
+)
+
+func (l *Logger) logger() {
+	for i := 2; i < 15; i++ {
+		_, file, _, ok := runtime.Caller(i)
+		switch {
+		case !ok:
+		case strings.HasSuffix(file, "_test.go"):
+		case strings.Contains(file, gormPackage):
+		case strings.Contains(file, zapgormPackage):
+		default:
+			l.Logger = l.AddCallerSkip(i)
+		}
 	}
-	_, file, line, _ := runtime.Caller(1)
-	ctx = context.WithValue(ctx, fileKey, file)
-	ctx = context.WithValue(ctx, lineKey, line)
 
-	return ctx
-}
-
-func getFileAndLine(ctx context.Context) (file string, line int) {
-	if lineValue := ctx.Value(lineKey); lineValue != nil {
-		line, _ = lineValue.(int)
-	}
-
-	if fileValue := ctx.Value(fileKey); fileValue != nil {
-		file, _ = fileValue.(string)
-	}
-
-	return file, line
 }
