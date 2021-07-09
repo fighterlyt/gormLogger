@@ -1,6 +1,7 @@
 package gormlogger
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -13,7 +14,7 @@ import (
 )
 
 var (
-	localDSN     = `root:123@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True`
+	localDSN     = `root:dubaihell@tcp(127.0.0.1:3306)/test1?charset=utf8mb4&parseTime=True`
 	originLogger log.Logger
 	err          error
 	db           *gorm.DB
@@ -37,7 +38,9 @@ func TestNewLogger(t *testing.T) {
 	mysqlLogger := originLogger.Derive(`mysql`)
 	mysqlLogger.Info(`before`)
 	mysqlLogger = mysqlLogger.AddCallerSkip(4)
-	targetLogger = NewLogger(mysqlLogger, time.Second)
+	targetLogger = NewLogger(mysqlLogger, time.Second, map[string]zapcore.Level{
+		`test`: zapcore.WarnLevel,
+	})
 
 	db, err = gorm.Open(mysql.Open(localDSN), &gorm.Config{
 		Logger: targetLogger,
@@ -47,5 +50,5 @@ func TestNewLogger(t *testing.T) {
 		count int64
 	)
 
-	require.NoError(t, db.WithContext(todo).Debug().Table(`dh_pay_order`).Count(&count).Error, `COUNT`)
+	require.NoError(t, db.WithContext(context.WithValue(todo, ModuleKey, `test`)).Table(`user_wallet`).Count(&count).Error, `COUNT`)
 }

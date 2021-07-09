@@ -23,10 +23,11 @@ var (
 type Logger struct {
 	log.Logger
 	slowThreshold time.Duration // 慢查询耗时阈值
+	minLevels     map[string]zapcore.Level
 }
 
-func NewLogger(logger log.Logger, slowThreshold time.Duration) logger.Interface {
-	targetLogger := &Logger{Logger: logger, slowThreshold: slowThreshold}
+func NewLogger(logger log.Logger, slowThreshold time.Duration, minLevel map[string]zapcore.Level) logger.Interface {
+	targetLogger := &Logger{Logger: logger, slowThreshold: slowThreshold, minLevels: minLevel}
 	targetLogger.AutoSkip()
 	return targetLogger
 }
@@ -79,9 +80,16 @@ func (l Logger) Trace(ctx context.Context, begin time.Time, fc func() (string, i
 		l.Logger.Error(`执行错误`, zap.String(`错误`, err.Error()), zap.Int64(`影响行数`, rows), zap.Duration(`耗时`, elapsed), zap.String(sqlField, sql))
 	case elapsed > l.slowThreshold && l.slowThreshold != 0:
 		l.Logger.Warn(`慢查询`, zap.Duration(`阈值`, l.slowThreshold), zap.Int64(`影响行数`, rows), zap.Duration(`耗时`, elapsed), zap.String(sqlField, sql))
-
 	default:
-		l.Logger.Info(`执行成功`, zap.Int64(`影响行数`, rows), zap.Duration(`耗时`, elapsed), zap.String(sqlField, sql))
+		value := ctx.Value(ModuleKey)
+		if value != nil {
+			if module, ok := value.(string); ok {
+				switch l.minLevels[module] {
+				case zapcore.DebugLevel, zapcore.InfoLevel:
+					l.Logger.Info(`执行成功`, zap.Int64(`影响行数`, rows), zap.Duration(`耗时`, elapsed), zap.String(sqlField, sql))
+				}
+			}
+		}
 	}
 }
 func (l Logger) gormFields(msg string, data ...interface{}) []zap.Field {
@@ -100,6 +108,7 @@ type CtxKey string
 
 const (
 	IgnoreErrorKey = CtxKey(`ignoreError`)
+	ModuleKey      = CtxKey(`module`)
 )
 
 var (
