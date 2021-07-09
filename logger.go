@@ -84,6 +84,12 @@ func (l Logger) Trace(ctx context.Context, begin time.Time, fc func() (string, i
 		value := ctx.Value(ModuleKey)
 		if value != nil {
 			if module, ok := value.(string); ok {
+
+				if _, exist := l.minLevels[module]; !exist {
+					l.Logger.Info(`执行成功`, zap.Int64(`影响行数`, rows), zap.Duration(`耗时`, elapsed), zap.String(sqlField, sql))
+					return
+				}
+
 				switch l.minLevels[module] {
 				case zapcore.DebugLevel, zapcore.InfoLevel:
 					l.Logger.Info(`执行成功`, zap.Int64(`影响行数`, rows), zap.Duration(`耗时`, elapsed), zap.String(sqlField, sql))
