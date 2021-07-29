@@ -77,6 +77,16 @@ func (l Logger) Trace(ctx context.Context, begin time.Time, fc func() (string, i
 				}
 			}
 		}
+
+		value = ctx.Value(IgnoreErrorMsgKey)
+		if value != nil {
+			if ignoreMsg, ok := value.(string); ok {
+				if strings.Contains(err.Error(), ignoreMsg) {
+					return
+				}
+			}
+		}
+
 		l.Logger.Error(`执行错误`, zap.String(`错误`, err.Error()), zap.Int64(`影响行数`, rows), zap.Duration(`耗时`, elapsed), zap.String(sqlField, sql))
 	case elapsed > l.slowThreshold && l.slowThreshold != 0:
 		l.Logger.Warn(`慢查询`, zap.Duration(`阈值`, l.slowThreshold), zap.Int64(`影响行数`, rows), zap.Duration(`耗时`, elapsed), zap.String(sqlField, sql))
@@ -111,8 +121,9 @@ var (
 type CtxKey string
 
 const (
-	IgnoreErrorKey = CtxKey(`ignoreError`)
-	ModuleKey      = CtxKey(`module`)
+	IgnoreErrorKey    = CtxKey(`ignoreError`)
+	IgnoreErrorMsgKey = CtxKey(`ignoreErrMsg`)
+	ModuleKey         = CtxKey(`module`)
 )
 
 var (
